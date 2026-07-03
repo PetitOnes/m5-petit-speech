@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+.venv_test/
+.ruff_cache/
+.python-version
+.env
+speaker_registry.json
