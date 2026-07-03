@@ -1,5 +1,7 @@
 # text-to-speech
 
+## [English Page](./README_en.md)
+
 GPU PC上で動作する音声合成(TTS)サーバー。M5 Petitのようなロボットの発話を、常時ONの軽量PCから呼び出すためのHTTP APIとして提供する。
 
 MCP経由ではなく素のHTTP APIにしているのは、音声合成は応答速度が重要なため、MCPのオーバーヘッドを避けたいから。

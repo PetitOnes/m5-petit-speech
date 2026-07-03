@@ -1,5 +1,7 @@
 # voice-recognition
 
+## [English Page](./README_en.md)
+
 ## 概要
 
 このリポジトリは、GPU付きPC上で動作する音声処理サーバーです。
