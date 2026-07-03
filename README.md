@@ -1,4 +1,6 @@
-# m5-petit-speech
+# M5 Petit Speech
+
+## [English Page](./README_en.md)
 
 GPU付きPC上で動作する、M5 Petit向けの音声処理サーバー群のリポジトリ。
 
@@ -6,8 +8,8 @@ GPU付きPC上で動作する、M5 Petit向けの音声処理サーバー群の�
 
 ## サブプロジェクト
 
-- **[m5_petit_speech](./m5_petit_speech/)** — 音声合成(TTS)。piper / kokoro / voicevoxの3エンジンに対応
-- **[m5_petit_voice_recognition](./m5_petit_voice_recognition/)** — 音声認識(Whisper)・環境音分類・音声特徴量抽出・話者識別
+- **[text-to-speech](./text-to-speech/)** — 音声合成(TTS)。piper / kokoro / voicevoxの3エンジンに対応
+- **[voice-recognition](./voice-recognition/)** — 音声認識(Whisper)・環境音分類・音声特徴量抽出・話者識別
 
 各サブプロジェクトは独立したuvプロジェクトで、個別に起動・テストできる。詳細は各ディレクトリのREADMEを参照。
 
@@ -19,8 +21,8 @@ GPU付きPC上で動作する、M5 Petit向けの音声処理サーバー群の�
 - GPU PCへのHTTP APIリクエスト送信
 
 [GPU付きPC = このリポジトリ]
-- m5_petit_speech            (port 8766)
-- m5_petit_voice_recognition (port 8765)
+- text-to-speech    (port 8766)
+- voice-recognition (port 8765)
 ```
 
 通信はHTTP、Tailscale経由での他PCからのアクセスを想定。
