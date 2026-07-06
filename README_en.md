@@ -9,9 +9,8 @@ The idea is that an always-on lightweight PC (Claude / control logic) offloads o
 ## Subprojects
 
 - **[text-to-speech](./text-to-speech/)** — Speech synthesis (TTS). Supports three engines: piper / kokoro / voicevox
-- **[voice-recognition](./voice-recognition/)** — Speech recognition (Whisper), sound event classification, voice feature extraction, speaker identification
 
-Each subproject is an independent uv project that can be started and tested on its own. See each directory's README for details.
+Speech recognition (Whisper, speaker identification, voice features) has moved to its own repository: [m5-petit-voice-recognition](https://github.com/PetitOnes/m5-petit-voice-recognition).
 
 ## Architecture
 
@@ -20,9 +19,9 @@ Each subproject is an independent uv project that can be started and tested on i
 - Claude / control logic / user interaction
 - Sends HTTP API requests to the GPU PC
 
-[GPU-equipped PC = this repository]
-- text-to-speech    (port 8766)
-- voice-recognition (port 8765)
+[GPU-equipped PC]
+- text-to-speech (port 8766) = this repository
+- voice-recognition (port 8767) = m5-petit-voice-recognition
 ```
 
 Communication is over HTTP, with access from other PCs expected via Tailscale.

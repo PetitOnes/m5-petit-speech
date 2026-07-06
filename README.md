@@ -9,9 +9,8 @@ GPU付きPC上で動作する、M5 Petit向けの音声処理サーバー群の�
 ## サブプロジェクト
 
 - **[text-to-speech](./text-to-speech/)** — 音声合成(TTS)。piper / kokoro / voicevoxの3エンジンに対応
-- **[voice-recognition](./voice-recognition/)** — 音声認識(Whisper)・環境音分類・音声特徴量抽出・話者識別
 
-各サブプロジェクトは独立したuvプロジェクトで、個別に起動・テストできる。詳細は各ディレクトリのREADMEを参照。
+音声認識（Whisper・話者識別・音声特徴量）は独立リポジトリ [m5-petit-voice-recognition](https://github.com/PetitOnes/m5-petit-voice-recognition) に移動しました。
 
 ## 構成イメージ
 
@@ -20,9 +19,9 @@ GPU付きPC上で動作する、M5 Petit向けの音声処理サーバー群の�
 - Claude / 制御ロジック / ユーザーとの対話
 - GPU PCへのHTTP APIリクエスト送信
 
-[GPU付きPC = このリポジトリ]
-- text-to-speech    (port 8766)
-- voice-recognition (port 8765)
+[GPU付きPC]
+- text-to-speech (port 8766) = このリポジトリ
+- voice-recognition (port 8767) = m5-petit-voice-recognition
 ```
 
 通信はHTTP、Tailscale経由での他PCからのアクセスを想定。
