@@ -10,7 +10,8 @@ class TTSEngine(str, Enum):
 
 class SpeakRequest(BaseModel):
     text: str
-    engine: TTSEngine = TTSEngine.piper
+    # 省略すると、サーバーの既定のエンジン(TTS_DEFAULT_ENGINE、無ければ piper → voicevox の順)
+    engine: TTSEngine | None = None
 
     # piper options
     speaker: int | None = None

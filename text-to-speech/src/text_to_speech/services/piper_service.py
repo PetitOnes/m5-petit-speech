@@ -6,6 +6,10 @@ from pathlib import Path
 from text_to_speech.config import settings
 
 
+class EngineNotConfiguredError(RuntimeError):
+    """リクエストされたエンジンが、このサーバーでは設定されていない。"""
+
+
 class PiperService:
     def synthesize(
         self,
@@ -16,6 +20,11 @@ class PiperService:
         noise_w: float | None = None,
         sentence_silence: float | None = None,
     ) -> Path:
+        if not settings.piper_configured:
+            raise EngineNotConfiguredError(
+                "piper は設定されていません(PIPER_BIN / PIPER_MODEL_PATH)。"
+                'engine に "voicevox" か "kokoro" を指定してください'
+            )
         out_path = settings.output_dir / f"{uuid.uuid4().hex}.wav"
 
         if speaker is None:
@@ -50,7 +59,8 @@ class PiperService:
         ]
 
         env = os.environ.copy()
-        env["LD_LIBRARY_PATH"] = settings.piper_ld_library_path
+        if settings.piper_ld_library_path:
+            env["LD_LIBRARY_PATH"] = settings.piper_ld_library_path
 
         result = subprocess.run(
             cmd,
