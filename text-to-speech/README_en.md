@@ -56,7 +56,7 @@ Models are saved to `~/.local/share/piper/models/`.
 ```bash
 uv sync
 cp .env.example .env
-# edit .env and set PIPER_BIN etc. to their real paths
+# only when you use piper: uncomment PIPER_BIN etc. in .env and set real paths
 ```
 
 ## Running
