@@ -1,9 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse, PlainTextResponse
 
 from text_to_speech.schemas import SpeakRequest, TTSEngine
 from text_to_speech.services.kokoro_service import kokoro_service
-from text_to_speech.services.piper_service import piper_service
+from text_to_speech.config import settings
+from text_to_speech.services.piper_service import EngineNotConfiguredError, piper_service
 from text_to_speech.services.voicevox_service import voicevox_service
 
 router = APIRouter()
@@ -17,7 +18,8 @@ GET /help
 POST /speak
 POST /speak_summary
 
-Engine: "piper" (default), "kokoro", "voicevox"
+Engine: "piper", "kokoro", "voicevox"
+(engine を省略すると TTS_DEFAULT_ENGINE、無ければ piper が設定済みなら piper、未設定なら voicevox)
 
 --- piper ---
 {
@@ -91,15 +93,30 @@ speakers:
 """
 
 
+def _resolve_engine(req: SpeakRequest) -> TTSEngine:
+    if req.engine is not None:
+        return req.engine
+    if settings.default_engine:
+        return TTSEngine(settings.default_engine)
+    return TTSEngine.piper if settings.piper_configured else TTSEngine.voicevox
+
+
 def _synthesize(req: SpeakRequest):
-    if req.engine == TTSEngine.kokoro:
+    try:
+        return _synthesize_with(_resolve_engine(req), req)
+    except EngineNotConfiguredError as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
+
+
+def _synthesize_with(engine: TTSEngine, req: SpeakRequest):
+    if engine == TTSEngine.kokoro:
         return kokoro_service.synthesize(
             text=req.text,
             voice=req.voice or "jf_alpha",
             speed=req.speed or 1.0,
             lang=req.lang or "ja",
         )
-    elif req.engine == TTSEngine.voicevox:
+    elif engine == TTSEngine.voicevox:
         return voicevox_service.synthesize(
             text=req.text,
             speaker=req.voicevox_speaker if req.voicevox_speaker is not None else 0,

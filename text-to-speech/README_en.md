@@ -2,17 +2,21 @@
 
 ## [日本語ページ](./README.md)
 
-A text-to-speech (TTS) server that runs on a GPU PC. Provides an HTTP API that an always-on lightweight PC can call to make a robot like M5 Petit speak.
+A text-to-speech (TTS) server that provides an HTTP API to make a robot like M5 Petit speak. **It runs on a PC without a GPU** (on the same PC as the caller, or on another one).
 
 It's a plain HTTP API rather than MCP because speech synthesis is latency-sensitive, and we want to avoid MCP's overhead.
 
 ## Supported engines
 
-- **piper** (piper-plus) — default. Japanese voice models (e.g. Tsukuyomi-chan)
-- **kokoro** (kokoro-onnx) — lightweight multilingual TTS
-- **voicevox** — calls a VOICEVOX ENGINE instance over HTTP
+- **piper** (piper-plus) — optional. Japanese voice models (e.g. Tsukuyomi-chan). Runs on CPU
+- **kokoro** (kokoro-onnx) — lightweight multilingual TTS. Runs on CPU
+- **voicevox** — calls a VOICEVOX ENGINE instance over HTTP. The engine can be the CPU build or the GPU build
 
-Switch engines via the `engine` field in the `/speak` request.
+Switch engines via the `engine` field in the `/speak` request. When omitted: `TTS_DEFAULT_ENGINE`, otherwise piper (if configured), then voicevox.
+
+**The easiest start is voicevox only**: start VOICEVOX ENGINE, then this server (no piper settings needed).
+
+VOICEVOX ENGINE: pick a build from [the releases](https://github.com/VOICEVOX/voicevox_engine/releases) — `linux-cpu-x64` without a GPU, `linux-nvidia` with an NVIDIA GPU — and run `./run --host 127.0.0.1 --port 50021`. This server's settings are the same either way.
 
 ## Layout
 
@@ -30,7 +34,7 @@ src/text_to_speech/
 
 ## Setup
 
-### 1. piper-plus (binary)
+### 1. piper-plus (binary, optional)
 
 ```bash
 mkdir -p ~/work/piper-bin && cd ~/work/piper-bin

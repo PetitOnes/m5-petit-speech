@@ -2,17 +2,19 @@
 
 ## [English Page](./README_en.md)
 
-GPU PC上で動作する音声合成(TTS)サーバー。M5 Petitのようなロボットの発話を、常時ONの軽量PCから呼び出すためのHTTP APIとして提供する。
+音声合成(TTS)サーバー。M5 Petitのようなロボットの発話を、HTTP APIとして提供する。**GPUなしのPCでも動く**(同じPCで動かしても、別のPCに置いてもよい)。
 
 MCP経由ではなく素のHTTP APIにしているのは、音声合成は応答速度が重要なため、MCPのオーバーヘッドを避けたいから。
 
 ## 対応エンジン
 
-- **piper** (piper-plus) — デフォルト。日本語話者モデル(つくよみちゃん等)
-- **kokoro** (kokoro-onnx) — 軽量な多言語TTS
-- **voicevox** — VOICEVOX ENGINEをHTTPで呼び出し
+- **piper** (piper-plus) — 任意。日本語話者モデル(つくよみちゃん等)。CPU実行
+- **kokoro** (kokoro-onnx) — 軽量な多言語TTS。CPU実行
+- **voicevox** — VOICEVOX ENGINEをHTTPで呼び出し。エンジンはCPU版・GPU版のどちらでもよい
 
-`/speak`リクエストの`engine`で切り替える。
+`/speak`リクエストの`engine`で切り替える。省略したときは `TTS_DEFAULT_ENGINE`、無ければ piper(設定済みのとき)→ voicevox の順。
+
+**いちばん簡単な始め方は voicevox だけ**: VOICEVOX ENGINE を起動して、このサーバーを起動する(piperの設定は要らない)。
 
 ## 構成
 
@@ -30,7 +32,20 @@ src/text_to_speech/
 
 ## セットアップ
 
-### 1. piper-plus (バイナリ)
+### 1. VOICEVOX ENGINE(おすすめ)
+
+[VOICEVOX ENGINE](https://github.com/VOICEVOX/voicevox_engine/releases) から、PCに合うものを選んで起動する。
+
+- GPUなし: `linux-cpu-x64`(Windows / macOS はそれぞれのCPU版)
+- NVIDIAのGPUあり: `linux-nvidia`(合成が速くなる)
+
+```bash
+./run --host 127.0.0.1 --port 50021
+```
+
+このサーバーは `VOICEVOX_URL`(既定 `http://127.0.0.1:50021`)に頼むだけなので、CPU版でもGPU版でも設定は同じ。
+
+### 2. piper-plus (バイナリ、任意)
 
 ```bash
 mkdir -p ~/work/piper-bin && cd ~/work/piper-bin
@@ -42,17 +57,16 @@ LD_LIBRARY_PATH=$PWD/lib ./bin/piper --download-model tsukuyomi
 
 モデルは `~/.local/share/piper/models/` に保存される。
 
-### 2. kokoro / voicevox（任意）
+### 3. kokoro（任意）
 
-- kokoro: モデルとvoicesファイルを`~/.local/share/kokoro/`に配置（`KOKORO_MODEL_PATH`/`KOKORO_VOICES_PATH`で変更可）
-- voicevox: [VOICEVOX ENGINE](https://voicevox.hiroshiba.jp/)を別途起動し、`VOICEVOX_URL`で接続先を指定
+モデルとvoicesファイルを`~/.local/share/kokoro/`に配置（`KOKORO_MODEL_PATH`/`KOKORO_VOICES_PATH`で変更可）
 
-### 3. Python環境
+### 4. Python環境
 
 ```bash
 uv sync
 cp .env.example .env
-# .env を編集してPIPER_BIN等のパスを実際の値に
+# piper を使うときだけ、.env の PIPER_BIN 等のコメントを外して実際のパスに
 ```
 
 ## 起動
@@ -74,7 +88,7 @@ uv run uvicorn text_to_speech.main:app --host 0.0.0.0 --port 8766
 ```bash
 curl -X POST http://127.0.0.1:8766/speak \
   -H "Content-Type: application/json" \
-  -d '{"text":"こんにちは","engine":"piper"}' --output out.wav
+  -d '{"text":"こんにちは","engine":"voicevox","voicevox_speaker":3}' --output out.wav
 ```
 
 エンジンごとのリクエスト例:
@@ -122,7 +136,7 @@ sudo systemctl enable --now m5_speech
 journalctl -u m5_speech -f
 ```
 
-## 別PCからアクセス
+## 別PCからアクセス(分けて動かす場合)
 
 Tailscale経由を想定:
 
@@ -135,3 +149,4 @@ curl http://100.xxx.xxx.xxx:8766/help
 - **音が出ない**: wavではなくエラーメッセージが保存されている場合がある → `file out.wav`で確認
 - **libonnxruntime.so エラー**: `LD_LIBRARY_PATH`が必要
 - **piperが動かない**: バイナリパス・モデルパスを確認
+- **503 piper は設定されていません**: `engine` に `voicevox` か `kokoro` を指定するか、`.env` に piper の設定を書く

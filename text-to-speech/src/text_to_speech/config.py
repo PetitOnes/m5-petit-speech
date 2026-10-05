@@ -7,9 +7,12 @@ class Settings(BaseSettings):
     host: str = Field(default="0.0.0.0", alias="HOST")
     port: int = Field(default=8766, alias="PORT")
 
-    piper_bin: Path = Field(alias="PIPER_BIN")
-    piper_ld_library_path: str = Field(alias="PIPER_LD_LIBRARY_PATH")
-    piper_model_path: Path = Field(alias="PIPER_MODEL_PATH")
+    # piper は任意。使わないなら未設定でよい(kokoro / voicevox だけで起動できる)
+    piper_bin: Path | None = Field(default=None, alias="PIPER_BIN")
+    piper_ld_library_path: str = Field(default="", alias="PIPER_LD_LIBRARY_PATH")
+    piper_model_path: Path | None = Field(default=None, alias="PIPER_MODEL_PATH")
+    # engine を省略したリクエストで使うエンジン。未設定なら、piper が設定されていれば piper、無ければ voicevox
+    default_engine: str | None = Field(default=None, alias="TTS_DEFAULT_ENGINE")
     output_dir: Path = Field(default=Path("./outputs"), alias="OUTPUT_DIR")
 
     kokoro_model_path: Path = Field(
@@ -38,6 +41,11 @@ class Settings(BaseSettings):
         populate_by_name=True,
         extra="ignore",
     )
+
+
+    @property
+    def piper_configured(self) -> bool:
+        return self.piper_bin is not None and self.piper_model_path is not None
 
 
 settings = Settings()
